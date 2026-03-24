@@ -1,0 +1,18 @@
+drop database if exists CAPSTONE_PRJ;
+create database CAPSTONE_PRJ;
+use CAPSTONE_PRJ;
+select  * from account;
+select  * from card;
+select count(*) from client;
+select count(*) from disp;
+select * from district;
+select * from loan;
+select count(*) from orders;
+select count(*) from transaction_data;
+create table loan_transactions as select td.*,ln.loan_id,ln.date as loan_date, ln.amount as loan_amount,ln.duration,ln.payments,ln.status from loan ln join transaction_data as td on ln.account_id=td.account_id;
+create table acc_ord as select ord.*, acc.date as account_date,acc.district_id as account_district_id,acc.frequency from account as acc left join orders ord on acc.account_id=ord.account_id;
+create table card_disp as select card .*,disp.account_id,disp.client_id as disposition_client_id,disp.type as disposition_type from card card join disp disp on card .disp_id=disp.disp_id;
+create table card_disp_client as select * from card_disp cd join client c on cd.disposition_client_id=c.client_id;
+create table card_disp_client_dist as select * from card_disp_client cdc join district d on cdc.district_id=d.A1;
+create table acc_ord_card_disp_client_dist as select cdcd.*, ao.order_id,ao.bank_to,ao.account_to,ao.amount,ao.k_symbol,ao.account_date,ao.account_district_id,ao.frequency from acc_ord as ao left join card_disp_client_dist cdcd on ao.account_id=cdcd.account_id;
+select * from loan_transactions lt join acc_ord_card_disp_client_dist as aocdcd on lt.account_id=aocdcd.account_id;
